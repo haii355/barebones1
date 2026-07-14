@@ -1,0 +1,54 @@
+body {
+
+    font-family: Arial;
+
+    max-width:900px;
+
+    margin:auto;
+
+    padding:20px;
+
+}
+
+
+input, textarea {
+
+    width:100%;
+
+    padding:10px;
+
+}
+
+
+textarea {
+
+    height:120px;
+
+}
+
+
+button {
+
+    padding:10px;
+
+    cursor:pointer;
+
+}
+
+
+.post {
+
+    border:1px solid #ccc;
+
+    padding:15px;
+
+    margin:20px 0;
+
+}
+
+
+.post img {
+
+    max-width:500px;
+
+}

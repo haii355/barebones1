@@ -1,0 +1,405 @@
+const SUPABASE_URL = "https://dgivyvqvmmscicqltkze.supabase.co";
+
+const SUPABASE_KEY = "sb_publishable_6liDneqT-wiDkAFBHwUriw_XASMM-Bv";
+
+
+const client = supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+);
+
+
+
+
+
+async function loadPosts(){
+
+
+    const {data,error}=await client
+
+    .from("posts")
+
+    .select("*")
+
+    .gt(
+        "expires_at",
+        new Date().toISOString()
+    )
+
+    .order(
+        "created_at",
+        {
+            ascending:false
+        }
+    );
+
+
+
+    if(error){
+
+        console.log(error);
+
+        return;
+
+    }
+
+
+
+    const box=document.getElementById("posts");
+
+
+    box.innerHTML="";
+
+
+
+    data.forEach(post=>{
+
+
+        box.innerHTML += `
+
+
+        <div class="post">
+
+
+        <h3>
+        ${escapeHTML(post.title)}
+        </h3>
+
+
+        <p>
+        ${escapeHTML(post.content)}
+        </p>
+
+
+
+        ${
+            post.image_url
+
+            ?
+
+            `<img src="${post.image_url}">`
+
+            :
+
+            ""
+
+        }
+
+
+
+        <p>
+        Deleted after ${daysLeft(post.expires_at)} days
+        </p>
+
+
+
+        <button onclick="likePost('${post.id}', ${post.likes || 0})">
+
+        Like (${post.likes || 0})
+
+        </button>
+
+
+
+        </div>
+
+
+        `;
+
+
+    });
+
+
+}
+
+
+
+
+
+
+
+async function createPost(){
+
+
+
+    const title =
+    document.getElementById("title").value;
+
+
+
+    const content =
+    document.getElementById("content").value;
+
+
+
+    const file =
+    document.getElementById("image").files[0];
+
+
+
+    const days =
+    Number(
+        document.getElementById("expiry").value
+    );
+
+
+
+
+    if(days < 1 || days > 30){
+
+
+        alert("Expiry must be between 1 and 30 days");
+
+
+        return;
+
+    }
+
+
+
+
+
+    let imageURL=null;
+
+
+
+
+
+    if(file){
+
+
+
+        const filename =
+        Date.now()+"-"+file.name;
+
+
+
+
+        const {error:uploadError}=
+
+        await client.storage
+
+        .from("images")
+
+        .upload(
+            filename,
+            file
+        );
+
+
+
+        if(uploadError){
+
+            console.log(uploadError);
+
+            return;
+
+        }
+
+
+
+
+
+        const result =
+
+        client.storage
+
+        .from("images")
+
+        .getPublicUrl(filename);
+
+
+
+        imageURL =
+        result.data.publicUrl;
+
+
+    }
+
+
+
+
+
+
+    const expiry = new Date();
+
+
+    expiry.setDate(
+        expiry.getDate()+days
+    );
+
+
+
+
+
+
+
+    const {error}=await client
+
+    .from("posts")
+
+    .insert({
+
+        title:title,
+
+        content:content,
+
+        image_url:imageURL,
+
+        likes:0,
+
+        expires_at:expiry.toISOString()
+
+    });
+
+
+
+
+
+    if(error){
+
+        console.log(error);
+
+        return;
+
+    }
+
+
+
+
+
+    document.getElementById("title").value="";
+
+    document.getElementById("content").value="";
+
+    document.getElementById("image").value="";
+
+
+
+    loadPosts();
+
+
+}
+
+
+
+
+
+
+
+
+
+async function likePost(id,likes){
+
+
+
+    const {error}=await client
+
+    .from("posts")
+
+    .update({
+
+        likes:likes+1
+
+    })
+
+    .eq(
+        "id",
+        id
+    );
+
+
+
+
+
+    if(error){
+
+        console.log(error);
+
+        return;
+
+    }
+
+
+
+
+
+    loadPosts();
+
+
+}
+
+
+
+
+
+
+
+
+
+function daysLeft(date){
+
+
+    const difference =
+
+    new Date(date)
+
+    -
+
+    new Date();
+
+
+
+
+    return Math.ceil(
+
+        difference /
+
+        (1000*60*60*24)
+
+    );
+
+
+}
+
+
+
+
+
+
+
+
+
+function escapeHTML(text){
+
+
+    if(!text){
+
+        return "";
+
+    }
+
+
+
+    return text
+
+    .replaceAll("&","&amp;")
+
+    .replaceAll("<","&lt;")
+
+    .replaceAll(">","&gt;")
+
+    .replaceAll('"',"&quot;")
+
+    .replaceAll("'","&#039;");
+
+
+}
+
+
+
+
+
+
+
+loadPosts();
