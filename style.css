@@ -67,3 +67,18 @@ body {
     background: black;
     color: white;
 }
+body {
+    color: black;
+}
+
+* {
+    border-color: black;
+}
+
+input,
+textarea,
+button,
+.post {
+    border: 1px solid black;
+    color: black;
+}
