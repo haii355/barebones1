@@ -82,3 +82,36 @@ button,
     border: 1px solid black;
     color: black;
 }
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+span,
+a,
+label,
+li,
+button,
+input,
+textarea,
+select,
+option,
+strong,
+em,
+small,
+blockquote,
+code,
+pre,
+caption,
+legend,
+th,
+td {
+    color: white;
+    text-shadow:
+        -1px -1px 0 #000,
+         1px -1px 0 #000,
+        -1px  1px 0 #000,
+         1px  1px 0 #000;
+}
